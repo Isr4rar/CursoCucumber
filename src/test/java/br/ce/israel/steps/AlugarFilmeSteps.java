@@ -1,5 +1,7 @@
 package br.ce.israel.steps;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import br.ce.israel.entidades.Filme;
 import br.ce.israel.entidades.NotaAluguel;
 import br.ce.israel.servicos.AluguelService;
+import br.ce.israel.utils.DateUtils;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -18,6 +21,7 @@ public class AlugarFilmeSteps {
 	private AluguelService aluguel = new AluguelService();
 	private NotaAluguel nota;
 	private String erro;
+	private String tipoAluguel;
 
 	@Given("^um filme com estoque de (\\d+) unidades$")
 	public void umFilmeComEstoqueDeUnidades(int arg1) throws Throwable {
@@ -35,7 +39,7 @@ public class AlugarFilmeSteps {
 	@When("^alugar$")
 	public void alugar() throws Throwable {
 		try {
-			nota = aluguel.alugar(filme);
+			nota = aluguel.alugar(filme, tipoAluguel);
 		} catch (RuntimeException e) {
 			erro = e.getMessage();
 		}
@@ -46,20 +50,7 @@ public class AlugarFilmeSteps {
 		Assert.assertEquals(arg1, nota.getPreco() );
 	}
 
-	@Then("^a data de entrega será no dia seguinte$")
-	public void aDataDeEntregaSeráNoDiaSeguinte() throws Throwable {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, 1);
-		
-		Date dataRetorno = nota.getDataEntrega();
-		Calendar calRetorno = Calendar.getInstance();
-		calRetorno.setTime(dataRetorno);
-		
-		Assert.assertEquals(cal.get(Calendar.DAY_OF_MONTH), calRetorno.get(Calendar.DAY_OF_MONTH));
-		Assert.assertEquals(cal.get(Calendar.MONTH), calRetorno.get(Calendar.MONTH));
-		Assert.assertEquals(cal.get(Calendar.YEAR), calRetorno.get(Calendar.YEAR));
-	}
-
+	
 	@Then("^o estoque do filme será (\\d+) unidade$")
 	public void oEstoqueDoFilmeSeráUnidade(int arg1) throws Throwable {
 		Assert.assertEquals(arg1 ,filme.getEstoque() );
@@ -71,4 +62,24 @@ public class AlugarFilmeSteps {
 		Assert.assertEquals("Filme sem estoque", erro);
 	}
 
+	@Given("^que o tipo do aluguel seja (.*)$")
+	public void queOTipoDoAluguelSejaExtendido(String tipo) throws Throwable {
+		tipoAluguel = tipo;
+	}
+
+	@Then("^a data de entrega será em (\\d+) dias?$")
+	public void aDataDeEntregaSeráEmQtdDiasDias(int arg1) throws Throwable {
+		Date dataEsperada = DateUtils.obterDataDiferencaDias(arg1);
+		Date dataReal = nota.getDataEntrega();
+		
+		DateFormat format  = new SimpleDateFormat("dd/MM/yyyy");
+		
+		Assert.assertEquals(format.format(dataEsperada), format.format(dataReal));
+		
+	}
+	@Then("^a pontuação será de (\\d+) pontos$")
+	public void aPontuaçãoSeráDePontos(int arg1) throws Throwable {
+		Assert.assertEquals(arg1, nota.getPotuacao());
+	}
+	
 }
