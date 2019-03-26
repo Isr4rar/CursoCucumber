@@ -2,13 +2,13 @@ package br.ce.israel.steps;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Assert;
 
 import br.ce.israel.entidades.Filme;
 import br.ce.israel.entidades.NotaAluguel;
+import br.ce.israel.entidades.TipoAluguel;
 import br.ce.israel.servicos.AluguelService;
 import br.ce.israel.utils.DateUtils;
 import cucumber.api.java.en.Given;
@@ -21,7 +21,7 @@ public class AlugarFilmeSteps {
 	private AluguelService aluguel = new AluguelService();
 	private NotaAluguel nota;
 	private String erro;
-	private String tipoAluguel;
+	private TipoAluguel tipoAluguel = TipoAluguel.COMUM;
 
 	@Given("^um filme com estoque de (\\d+) unidades$")
 	public void umFilmeComEstoqueDeUnidades(int arg1) throws Throwable {
@@ -64,7 +64,9 @@ public class AlugarFilmeSteps {
 
 	@Given("^que o tipo do aluguel seja (.*)$")
 	public void queOTipoDoAluguelSejaExtendido(String tipo) throws Throwable {
-		tipoAluguel = tipo;
+		tipoAluguel = tipo.equals("semanal")? TipoAluguel.SEMANAL:
+			tipo.equals("extendido")? TipoAluguel.EXTENDIDO:
+				TipoAluguel.COMUM;
 	}
 
 	@Then("^a data de entrega será em (\\d+) dias?$")
