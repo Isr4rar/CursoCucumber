@@ -3,6 +3,7 @@ package br.ce.israel.steps;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import org.junit.Assert;
 
@@ -11,6 +12,7 @@ import br.ce.israel.entidades.NotaAluguel;
 import br.ce.israel.entidades.TipoAluguel;
 import br.ce.israel.servicos.AluguelService;
 import br.ce.israel.utils.DateUtils;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -21,7 +23,7 @@ public class AlugarFilmeSteps {
 	private AluguelService aluguel = new AluguelService();
 	private NotaAluguel nota;
 	private String erro;
-	private TipoAluguel tipoAluguel = TipoAluguel.COMUM;
+	private TipoAluguel tipoAluguel;
 
 	@Given("^um filme com estoque de (\\d+) unidades$")
 	public void umFilmeComEstoqueDeUnidades(int arg1) throws Throwable {
@@ -34,6 +36,18 @@ public class AlugarFilmeSteps {
 	public void queOPreçoDeAluguelSejaR$(int arg1) throws Throwable {
 		filme.setValorAluguel(arg1);
 		Assert.assertEquals(arg1 ,filme.getValorAluguel());
+	}
+
+	@Given("^um filme$")
+	public void umFilme(DataTable table) throws Throwable {
+		Map<String, String> map = table.asMap(String.class, String.class);
+		filme = new Filme();
+		filme.setEstoque(Integer.parseInt(map.get("estoque")));
+		filme.setValorAluguel(Integer.parseInt(map.get("preco")));
+		String tipo = map.get("tipo");
+		tipoAluguel = tipo.equals("semanal")? TipoAluguel.SEMANAL:
+			tipo.equals("extendido")? TipoAluguel.EXTENDIDO:
+				TipoAluguel.COMUM;
 	}
 
 	@When("^alugar$")
@@ -50,7 +64,7 @@ public class AlugarFilmeSteps {
 		Assert.assertEquals(arg1, nota.getPreco() );
 	}
 
-	
+
 	@Then("^o estoque do filme será (\\d+) unidade$")
 	public void oEstoqueDoFilmeSeráUnidade(int arg1) throws Throwable {
 		Assert.assertEquals(arg1 ,filme.getEstoque() );
@@ -73,15 +87,16 @@ public class AlugarFilmeSteps {
 	public void aDataDeEntregaSeráEmQtdDiasDias(int arg1) throws Throwable {
 		Date dataEsperada = DateUtils.obterDataDiferencaDias(arg1);
 		Date dataReal = nota.getDataEntrega();
-		
+
 		DateFormat format  = new SimpleDateFormat("dd/MM/yyyy");
-		
+
 		Assert.assertEquals(format.format(dataEsperada), format.format(dataReal));
-		
+
 	}
 	@Then("^a pontuação será de (\\d+) pontos$")
 	public void aPontuaçãoSeráDePontos(int arg1) throws Throwable {
 		Assert.assertEquals(arg1, nota.getPotuacao());
 	}
-	
+
+
 }

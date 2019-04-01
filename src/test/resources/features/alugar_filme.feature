@@ -22,6 +22,17 @@ Feature: Alugar Filme
 	Eu quero cadastrar alguéis de filmes
 	Para controlar preços e datas de entrega
 	
+Scenario: Deve alugar um filme com sucesso
+	Given um filme
+		| estoque  | 2 |
+		| preco    | 3 |
+		| tipo     | comum |
+	When alugar
+	Then o preço do aluguel será R$ 3
+	And a data de entrega será em 1 dia
+	And o estoque do filme será 1 unidade
+	
+		
 Scenario: Não deve alugar filme sem estoque
 	Given um filme com estoque de 0 unidades
 	When alugar
